@@ -9,6 +9,7 @@ import com.hmdp.service.IUserInfoService;
 import com.hmdp.service.IUserService;
 import com.hmdp.utils.UserHolder;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -33,12 +34,14 @@ public class UserController {
     @Resource
     private IUserInfoService userInfoService;
 
+    @Resource
+    private StringRedisTemplate stringRedisTemplate;
+
     /**
      * 发送手机验证码
      */
     @PostMapping("code")
     public Result sendCode(@RequestParam("phone") String phone, HttpSession session) {
-        // TODO 发送短信验证码并保存验证码
         return userService.sendCode(phone, session);
     }
 
@@ -64,9 +67,9 @@ public class UserController {
     @GetMapping("/me")
     public Result me(){
         UserDTO user = UserHolder.getUser();
-
         return Result.ok(user);
     }
+
 
     @GetMapping("/info/{id}")
     public Result info(@PathVariable("id") Long userId){
