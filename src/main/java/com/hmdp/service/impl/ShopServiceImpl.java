@@ -36,6 +36,9 @@ public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements IS
             Shop shop = JSONUtil.toBean(cacheShopJson, Shop.class);
             return shop;
         }
+        if(cacheShopJson != null){
+            return null;
+        }
         //4.不存在，根据id查询数据库
         Shop shop = getById(id);
         if (shop != null) {
@@ -44,6 +47,9 @@ public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements IS
                     .set(RedisConstants.CACHE_SHOP_KEY + id, JSONUtil.toJsonStr(shop),RedisConstants.CACHE_SHOP_TTL, TimeUnit.MINUTES);
             return shop;
         }
+        //6.不存在，返回null，并将空值写入redis，实现缓存穿透保护
+        stringRedisTemplate.opsForValue()
+                    .set(RedisConstants.CACHE_SHOP_KEY + id, "", RedisConstants.CACHE_NULL_TTL, TimeUnit.MINUTES);
         return null;
     }
 
